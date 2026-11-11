@@ -1,0 +1,1 @@
+CREATE TABLE `solevault`.`usuarios` (`id` INT NOT NULL AUTO_INCREMENT , `nome` VARCHAR(100) NOT NULL , `email` VARCHAR(150) NOT NULL , `senha_hash` VARCHAR(255) NOT NULL , `perfil` VARCHAR(20) NOT NULL DEFAULT 'cliente' , `criado_em` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`), UNIQUE (`email`)) ENGINE = InnoDB;
