@@ -1,4 +1,4 @@
-<?php
+]<?php
 require "conexao.php";
 
 $erros = [];
@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 ':senha_hash' => $senhaHash
             ]);
 
-            echo "Cadastrado!";
+            header("Location: login.php?cadastro=ok");
             exit;
         } catch (PDOException $e) {
             if ($e->getCode() === "23000") {
