@@ -1,168 +1,98 @@
-* {
-    box-sizing: border-box; 
-}
 
-body {
-    margin: 0;                
-    background-color: #0b0b0b;
-    color: white;           
-    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-}
+<?php
+require "conexao.php";
 
+session_start();
 
-.container {
-    display: grid;
-    grid-template-columns: 45% 55%;  
-    min-height: 100vh;                
-}
+$erros = [];
 
-/* ===== 3. COLUNA DA FOTO ===== */
-aside {
-    position: relative;               
-    background:
-        linear-gradient(to bottom, rgba(0,0,0,.6), transparent 28%),  
-        url("../img/hero.jpg") center top / cover no-repeat;          
-}
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-/* Detalhe do topo: linha + "STREETWEAR • SNEAKERS • ESTILO" */
-.tagline {
-    position: absolute;
-    top: 32px;
-    left: 40px;
-    right: 40px;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 18px;
-    font-size: 13px;
-    letter-spacing: 0.3em;           
-    color: white;
-    text-transform: uppercase;
-}
+    $email = trim($_POST["email"] ?? "");
+    $senha = $_POST["senha"] ?? "";
 
-.tagline::before {
-    content: "";                      
-    flex: 0 0 120px;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.6);
-}
-
-/* ===== 4. COLUNA DO FORMULÁRIO ===== */
-main {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;          
-    padding: 48px clamp(24px, 6vw, 96px);
-}
-
-
-main > * {
-    width: 100%;
-    max-width: 420px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Título */
-h1 {
-    font-size: clamp(26px, 2.6vw, 36px);
-    line-height: 1.1;
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 12px;
-}
-
-main > p {
-    text-align: center;
-    color: #9a9a9a;
-    margin-top: 0;
-    margin-bottom: 32px;
-}
-
-/* ===== 5. CAMPOS ===== */
-label {
-    display: block;                   
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-input {
-    display: block;
-    width: 100%;
-    height: 52px;
-    padding: 0 16px;
-    background-color: #141414;
-    color: white;
-    border: 1px solid #2c2c2c;
-    border-radius: 12px;
-    font: inherit;                    
-}
-
-input::placeholder {
-    color: #777;
-}
-
-input:focus {
-    outline: 2px solid white;         
-    outline-offset: 2px;
-}
-
-/* Espaço das mensagens de erro */
-form p {
-    color: #ff6b6b;
-    font-size: 13px;
-    min-height: 20px;                
-    margin: 6px 0 12px;
-}
-
-/* ===== 6. BOTÃO ===== */
-button {
-    width: 100%;
-    height: 52px;
-    margin-top: 8px;
-    background-color: white;
-    color: #111;
-    border: 0;
-    border-radius: 12px;
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-button:hover {
-    background-color: #e4e4e4;
-}
-
-button:focus-visible {
-    outline: 2px solid white;
-    outline-offset: 2px;
-}
-
-/* ===== 7. LINK DE CADASTRO (o último parágrafo do main) ===== */
-main > p:last-of-type {
-    margin-top: 28px;
-    margin-bottom: 0;
-}
-
-a {
-    color: white;
-    font-weight: 600;
-}
-
-/* ===== 8. CELULAR: some a foto e fica só o formulário ===== */
-@media (max-width: 860px) {
-    .container {
-        grid-template-columns: 1fr;
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $erros[] = "E-mail inválido.";
     }
-    aside {
-        display: none;
+
+    if (empty($senha)) {
+        $erros[] = "Digite sua senha.";
+    }
+
+    if (empty($erros)) {
+
+        $sql = "SELECT id, nome, email, senha_hash FROM usuarios WHERE email = :email";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ":email" => $email
+        ]);
+
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($usuario && password_verify($senha, $usuario["senha_hash"])) {
+
+            session_regenerate_id(true);
+
+            $_SESSION["usuario_id"] = $usuario["id"];
+            $_SESSION["usuario_nome"] = $usuario["nome"];
+            $_SESSION["usuario_email"] = $usuario["email"];
+
+            header("Location: index.php");
+            exit;
+
+        } else {
+            $erros[] = "E-mail ou senha incorretos.";
+        }
     }
 }
+?>
 
-.destaque {
-  color: white;
-  font-weight: bold;
-  padding: 2px 4px;
-  border-radius: 4px;
-}
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SoleVault</title>
+
+     <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+<div class="container">
+<main>
+
+    <?php if (!empty($erros)): ?>
+    <?php foreach ($erros as $erro): ?>
+        <p class="erro">
+            <?= htmlspecialchars($erro) ?>
+        </p>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
+    <h1>Bem-vindo de volta!</h1>
+      <p>Entre na sua conta e continue explorando o melhor 
+       <br> do <span class="destaque">streetwear.</span> </p>
+
+        <form action="login.php" method="POST">
+             <label for="email">E-mail:</label>
+            <input type="email" id="email" name="email" placeholder="Digite seu e-mail" required>
+
+            <label for="senha"> Senha: </label>
+            <input type="password" id="senha" name="senha" maxlength="30" placeholder="Digite sua senha" required> 
+            <p id="senha-error"></p>
+
+            <button type="submit"> Entrar </button>
+
+        </form>
+
+            <p>Não tem uma conta? <a href="cadastro.php">Cadastre-se</a></p>
+</main>
+
+    <aside>
+
+    </aside>
+
+</div>
+</body>
+</html>
