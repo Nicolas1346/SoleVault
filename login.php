@@ -1,3 +1,54 @@
+
+<?php
+require "conexao.php";
+
+session_start();
+
+$erros = [];
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $email = trim($_POST["email"] ?? "");
+    $senha = $_POST["senha"] ?? "";
+
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $erros[] = "E-mail inválido.";
+    }
+
+    if (empty($senha)) {
+        $erros[] = "Digite sua senha.";
+    }
+
+    if (empty($erros)) {
+
+        $sql = "SELECT id, nome, email, senha_hash FROM usuarios WHERE email = :email";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            ":email" => $email
+        ]);
+
+        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($usuario && password_verify($senha, $usuario["senha_hash"])) {
+
+            session_regenerate_id(true);
+
+            $_SESSION["usuario_id"] = $usuario["id"];
+            $_SESSION["usuario_nome"] = $usuario["nome"];
+            $_SESSION["usuario_email"] = $usuario["email"];
+
+            header("Location: index.php");
+            exit;
+
+        } else {
+            $erros[] = "E-mail ou senha incorretos.";
+        }
+    }
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -10,6 +61,15 @@
 <body>
 <div class="container">
 <main>
+
+    <?php if (!empty($erros)): ?>
+    <?php foreach ($erros as $erro): ?>
+        <p class="erro">
+            <?= htmlspecialchars($erro) ?>
+        </p>
+    <?php endforeach; ?>
+    <?php endif; ?>
+
     <h1>Bem-vindo de volta!</h1>
       <p>Entre na sua conta e continue explorando o melhor 
        <br> do <span class="destaque">streetwear.</span> </p>
