@@ -4,8 +4,8 @@ const campoNome = document.getElementById("nome")
 const erroNome = document.getElementById("nome-error")
 const campoSenha = document.getElementById("senha")
 const erroSenha = document.getElementById("senha-error")
-const campoConfirmacao = document.getElementById("confirmacao")
-const erroConfirmacao = document.getElementById("error-confirmacao")
+const campoConfirmacao = document.getElementById("confirmar")
+const erroConfirmacao = document.getElementById("confirmar-error")
 
 
 campoEmail.addEventListener("blur", function() {
