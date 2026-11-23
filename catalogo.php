@@ -51,6 +51,7 @@ if (isset($_GET['marcas'])) {
                 type="text"
                 name="buscar"
                 placeholder="Buscar por nome ou marca..."
+                value="<?php echo htmlspecialchars($pesquisa) ?>"
             >
 
             <button>Pesquisar</button>
@@ -58,30 +59,26 @@ if (isset($_GET['marcas'])) {
             <label for="categoria">Categoria:</label>
 
             <select id="categoria" name="categoria">
-                <option value="">Todas</option>
-                <option value="tenis">Tenis</option>
-                <option value="roupas">Roupas</option>
+                <option value="">Todos</option>
+                <option value="tenis"  <?php if ($categoria == 'tenis') echo 'selected'; ?>>Tenis</option>
+                <option value="roupas" <?php if ($categoria == 'roupas') echo 'selected'; ?>>Roupas</option>
             </select>
 
             <label for="tamanho">Tamanho:</label>
 
             <select id="tamanho" name="tamanho">
                 <option value="">Todos</option>
-                <option value="39">Tamanho 39</option>
-                <option value="38">Tamanho 38</option>
-                <option value="37">Tamanho 37</option>
-                <option value="36">Tamanho 36</option>
-                <option value="35">Tamanho 35</option>
+                <option value="36/39" <?php if ($tamanho == '36/39') echo 'selected'; ?>> Tamanho 36/39</option> 
+                <option value="32/35"  <?php if ($tamanho == '32/35') echo 'selected'; ?>> Tamanho 32/35</option>
+                <option value="M" <?php if ($tamanho == 'M') echo 'selected'; ?>> M </option>
             </select>
 
             <label for="marcas">Marcas:</label>
 
             <select id="marcas" name="marcas">
                 <option value="">Todos</option>
-                <option value="BAW Clothing">BAW Clothing</option>
-                <option value="Off-White">Off-White</option>
-                <option value="Y-3">Y-3</option>
-                <option value="Thug Nine">Thug Nine</option>
+                <option value="Blacknine" <?php if ($marcas == 'Blacknine') echo 'selected'; ?>>Blacknine</option>
+                <option value="Hocks" <?php if ($marcas == 'Hocks') echo 'selected'; ?>>Hocks</option>
             </select>
 
         </form>
@@ -98,6 +95,16 @@ if (isset($_GET['marcas'])) {
                 (
                     $categoria == '' ||
                     $categoria == 'tenis'
+                )
+                &&
+                (
+                    $tamanho == '' ||
+                    $tamanho == '36/39'
+                )
+                &&
+                (
+                    $marcas == ''||
+                    $marcas == 'Hocks'
                 )
             ): ?>
 
@@ -119,20 +126,26 @@ if (isset($_GET['marcas'])) {
 
                 <?php endif;?>
 
-                <br>
-                <br>
-
-                    <?php 
-                    if (
+                    <?php if (
                         ($pesquisa == '' || 
                         stripos('Camisa', $pesquisa) !== false
                     )
-                       &&
+                     &&
                 (
                     $categoria == '' ||
                     $categoria == 'roupas'
-                )
-            ): ?>
+                ) 
+                    &&
+                  (  
+                    $tamanho == '' ||
+                    $tamanho == 'M'
+                  )
+                    &&
+                   (
+                    $marcas == '' ||
+                    $marcas == "Blacknine"
+                   ) 
+            ): ?>  
 
                 <article class="produto">
 
