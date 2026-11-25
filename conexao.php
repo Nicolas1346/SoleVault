@@ -6,7 +6,7 @@ $senha    = "";
 
 try {
     $pdo = new PDO(
-        "mysql:host=$servidor;port=3307;dbname=$banco;charset=utf8mb4",
+        "mysql:host=$servidor;port=3306;dbname=$banco;charset=utf8mb4",
         $usuario,
         $senha
     );
@@ -17,3 +17,5 @@ try {
     error_log($e->getMessage());
     die("Erro ao conectar ao banco de dados.");
 }
+
+?>
