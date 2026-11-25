@@ -1,4 +1,3 @@
-
 <?php
 
 $pesquisa = '';
@@ -24,6 +23,25 @@ $marcas = '';
 if (isset($_GET['marcas'])) {
     $marcas = $_GET['marcas'];
 }
+
+require_once 'conexao.php';
+
+$sql = $sql = "SELECT * FROM produtos
+        WHERE (nome LIKE :pesquisa OR marca LIKE :pesquisa)
+        AND (:categoria = '' OR categoria = :categoria)
+        AND (:tamanho = '' OR tamanho = :tamanho)
+        AND (:marcas = '' OR marca = :marcas)";
+
+$consulta = $pdo->prepare($sql);
+
+$consulta->execute([
+    'pesquisa' => "%$pesquisa%",
+    'categoria' => $categoria,
+    'tamanho' => $tamanho,
+    'marcas' => $marcas
+]);
+
+$produtos = $consulta->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 
@@ -87,83 +105,28 @@ if (isset($_GET['marcas'])) {
 
             <h2>Produtos Disponíveis</h2>
 
-                <?php if (
-                    ($pesquisa == '' ||
-                    stripos('Hocks', $pesquisa) !== false 
-                )
-                &&
-                (
-                    $categoria == '' ||
-                    $categoria == 'tenis'
-                )
-                &&
-                (
-                    $tamanho == '' ||
-                    $tamanho == '36/39'
-                )
-                &&
-                (
-                    $marcas == ''||
-                    $marcas == 'Hocks'
-                )
-            ): ?>
+            <?php foreach ($produtos as $produto): ?>
 
                 <article class="produto">
 
-                    <h3>Tênis</h3>
+                    <h3><?php echo $produto['nome']; ?></h3>
 
                     <img
-                        src="https://s.hocks.com.br/gallery/tenis-hocks-puff-brilhante-04-1407010629.jpg?format=webp"
-                        alt="Tênis Hocks Bold"
+                        src="<?php echo $produto['imagem']; ?>"
+                        alt="<?php echo $produto['nome']; ?>"
                     >
 
-                    <p>Tênis Hocks Puff - Brilhante<p>
-                    <p>Marca: Hocks</p>
-                    <p>Preço: 379,90</p>
-                    <p>Tamanho: 39</p>
+                    <p>Marca: <?php echo $produto['marca']; ?></p>
+
+                    <p>Preço: R$ <?php echo number_format($produto['preco'], 2, ',', '.'); ?></p>
+
+                    <p>Tamanho: <?php echo $produto['tamanho']; ?></p>
 
                 </article>
 
-                <?php endif;?>
+            <?php endforeach; ?>
 
-                    <?php if (
-                        ($pesquisa == '' || 
-                        stripos('Camisa', $pesquisa) !== false
-                    )
-                     &&
-                (
-                    $categoria == '' ||
-                    $categoria == 'roupas'
-                ) 
-                    &&
-                  (  
-                    $tamanho == '' ||
-                    $tamanho == 'M'
-                  )
-                    &&
-                   (
-                    $marcas == '' ||
-                    $marcas == "Blacknine"
-                   ) 
-            ): ?>  
-
-                <article class="produto">
-
-                <h3>Camisa</h3>
-
-                    <img
-                        src="https://blacknine.cdn.magazord.com.br/img/2025/08/produto/12120/frente-zoom-2025-08-16t202633-702.png?ims=fit-in/425x635/filters:fill(white)"
-                        alt="Camisa From Bom Retiro"
-                    >
-
-                    <p>Camisa Oversized streetwear Jesus Christ</p>
-                    <p>Marca: Blacknine</p>
-                    <p>Preço: 96,90</p>
-                    <p>M</p>
-                </article>
-                    <?php endif;?>
-
-            </section>
+        </section>
 
     </main>
 
